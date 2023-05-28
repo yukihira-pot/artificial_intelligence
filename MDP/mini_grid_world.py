@@ -29,14 +29,19 @@ class MiniGridWorld:
         self._H: int = len(field)
         self._W: int = len(field[0])
 
-        self._coord_to_state_num, self._state_num_to_coord,\
-        self._goal_state_nums, self._pit_state_nums = self.set_states_config()
+        self._S, \
+        self._coord_to_state_num, \
+        self._state_num_to_coord,\
+        self._goal_state_nums, \
+        self._pit_state_nums = self.set_states_config()
+    
         self._connections: list[set[int]] = self.set_connections()
 
         self.R = self._R
         self.T = self._T
 
     def set_states_config(self) -> tuple[list[list[int]], list[tuple[int, int]], set[int], set[int]]:
+        _S: set[int] = set()
         _coord_to_state_num: list[list[int]] = [ [-1 for j in range(self._W)] for i in range(self._H) ]
         _state_num_to_coord: list[tuple[int, int]] = [(0, 0) for _ in range(self._H * self._W)]
         _goal_state_nums: set[int] = set()
@@ -51,8 +56,10 @@ class MiniGridWorld:
                         _goal_state_nums.add(state_num)
                     elif self._field[cx][cy] == "-":
                         _pit_state_nums.add(state_num)
+                    
+                    _S.add(state_num)
                     state_num += 1
-        return _coord_to_state_num, _state_num_to_coord, _goal_state_nums, _pit_state_nums
+        return _S, _coord_to_state_num, _state_num_to_coord, _goal_state_nums, _pit_state_nums
 
     def set_connections(self) -> list[set[int]]:
         """
@@ -72,20 +79,17 @@ class MiniGridWorld:
         return _connections
     
     @property
-    def S(self) -> Literal[0]:
+    def S(self) -> set[int]:
         """状態数"""
         return self._S
     
     @property
     def A(self) -> Actions:
         """行動集合"""
-        return self._actions
-    @A.setter
-    def A(self) -> Actions:
-        self._actions = Actions()
-        return self._actions
-    
+        return self.directions
+
     def get_next_state_num(self, s: int, a: Actions):
+        """行動 a にしたがって状態 s から遷移した先の状態を返す"""
         s_coord: int = self._state_num_to_coord[s]
         s_sub_coord_x, s_sub_coord_y = s_coord[0] + a[0], s_coord[1] + a[1]
         if 0 <= s_sub_coord_x < self._H and 0 <= s_sub_coord_y < self._W:
@@ -96,9 +100,7 @@ class MiniGridWorld:
         return s_sub in self._connections[s]
 
     def _T(self, s: int, a: Actions, s_sub: int) -> float:
-        """
-        行動 a にしたがって状態 s から s_sub に遷移する確率
-        """
+        """行動 a にしたがって状態 s から s_sub に遷移する確率"""
         if not self.is_connected(s, s_sub):
             return 0
         elif self.get_next_state_num(s, a) == s_sub:
@@ -107,9 +109,7 @@ class MiniGridWorld:
             return self._error_rate
     
     def _R(self, s: int, a: Actions, s_sub: int) -> float:
-        """
-        行動 a にしたがって状態 s から s_sub に遷移したときの報酬
-        """
+        """行動 a にしたがって状態 s から s_sub に遷移したときの報酬"""
         reward: float = -1.0
         if s in self._goal_state_nums:
             reward += self.goal_reward
@@ -127,7 +127,8 @@ if __name__ == "__main__":
         "...-."
     ]
     mini_grid_world = MiniGridWorld(field, 10, -10, -0.1, 0.1)
-    for i in range(17):
-        for j in range(17):
-            for action in [ action.value for action in Actions ]:
-                print(i, action, j, mini_grid_world.T(i, action, j) * mini_grid_world.R(i, action, j))
+    print(mini_grid_world.S, mini_grid_world.A, mini_grid_world.T, mini_grid_world.R)
+    for i in mini_grid_world.S:
+        for j in mini_grid_world.S:
+            for action in mini_grid_world.A:
+                print(f"{i} -> {j} with {action}, {mini_grid_world.T(i, action, j) * mini_grid_world.R(i, action, j)}")
