@@ -96,6 +96,9 @@ class MiniGridWorld:
         return s_sub in self._connections[s]
 
     def _T(self, s: int, a: Actions, s_sub: int) -> float:
+        """
+        行動 a にしたがって状態 s から s_sub に遷移する確率
+        """
         if not self.is_connected(s, s_sub):
             return 0
         elif self.get_next_state_num(s, a) == s_sub:
@@ -104,6 +107,9 @@ class MiniGridWorld:
             return self._error_rate
     
     def _R(self, s: int, a: Actions, s_sub: int) -> float:
+        """
+        行動 a にしたがって状態 s から s_sub に遷移したときの報酬
+        """
         reward: float = -1.0
         if s in self._goal_state_nums:
             reward += self.goal_reward
