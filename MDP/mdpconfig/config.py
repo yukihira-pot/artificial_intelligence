@@ -16,7 +16,7 @@ class MarkovDecisionProcess:
         # 状態集合
         self.S: set[int] = S
         # 行動集合
-        self.A: list[MarkovDecisionProcessActions] = A
+        self.A: set[MarkovDecisionProcessActions] = A
         # 遷移関数
         self.T: Callable[[int, MarkovDecisionProcessActions, int], float] = T
         # 報酬関数
