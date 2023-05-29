@@ -33,11 +33,29 @@ class MarkovDecisionProcess():
         if k == 0:
             return 0
 
-        result = -inf 
+        result_value = -inf 
         for a in self.A:
             result_per_action = 0.0
             for s_sub in self.S:
                 result_per_action += \
                     self.T(s, a, s_sub) * ( self.R(s, a, s_sub) + self.gamma * self.V(s_sub, k - 1) )
-            result = max(result, result_per_action)
-        return result
+            result_value = max(result_value, result_per_action)
+
+        return result_value
+
+    def pi(self, s: int, k: int):
+        """
+        k ステップ目において、状態 s からの行動価値を最大にするような方策を求める
+        """
+        result_action: MarkovDecisionProcessActions = next(iter(self.A))
+        pi_val = -inf
+        for a in self.A:
+            pi_val_per_action = 0.0
+            for s_sub in self.S:
+                pi_val_per_action += \
+                    self.T(s, a, s_sub) * ( self.R(s, a, s_sub) +  self.gamma * self.V(s_sub, k))
+            if pi_val < pi_val_per_action:
+                pi_val = pi_val_per_action
+                result_action = a
+        
+        return result_action
