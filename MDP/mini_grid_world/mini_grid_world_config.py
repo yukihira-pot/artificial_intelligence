@@ -128,6 +128,9 @@ class MiniGridWorld:
     def A(self) -> Actions:
         """行動集合"""
         return self.directions
+    
+    def coord_to_state_num(self, x: int, y: int) -> int:
+        return self._coord_to_state_num[x][y]
 
     def get_next_state_num(self, s: int, a: Actions):
         """行動 a にしたがって状態 s から遷移した先の状態を返す"""
