@@ -27,7 +27,7 @@ class MiniGridWorld:
             "...-."]
         のように、壁を # で、ゴールマスを + で、落とし穴マスを - で表現
         """
-        self.directions: set[Actions] = { action for action in Actions }
+        self.directions: set[Actions] = {action for action in Actions}
         self._field: list[list[str]] = field
         self.goal_reward: float = goal_reward
         self.pit_reward: float = pit_reward
@@ -52,7 +52,7 @@ class MiniGridWorld:
 
     def set_states_config(
         self,
-    ) -> tuple[ list[list[int]], list[tuple[int, int]], set[int], set[int] ]:
+    ) -> tuple[list[list[int]], list[tuple[int, int]], set[int], set[int]]:
         """
         ( 状態集合, 座標 -> 状態番号のリスト, 状態番号 -> 座標のリスト, ゴール状態集合, 落とし穴状態集合 ) を構築
         """
@@ -128,7 +128,7 @@ class MiniGridWorld:
     def A(self) -> Actions:
         """行動集合"""
         return self.directions
-    
+
     def coord_to_state_num(self, x: int, y: int) -> int:
         return self._coord_to_state_num[x][y]
 
@@ -151,7 +151,7 @@ class MiniGridWorld:
                 return 1.0
             else:
                 return 0.0
-        # s から 1 手で s_sub にたどり着けなければ 0 
+        # s から 1 手で s_sub にたどり着けなければ 0
         if not self.is_connected(s, s_sub):
             return 0.0
         # 確率: 1 - エラー率 で正しい状態に遷移

@@ -10,38 +10,50 @@ from typing import *
 from mdpconfig import config
 from mini_grid_world_config import MiniGridWorld
 
+
 class MiniGridWorldValueIterationSolver:
-    def __init__(self, field: list[str], goal_reward: float, pit_reward: float, living_reward: float, error_rate: float, gamma: float) -> None:
+    def __init__(
+        self,
+        field: list[str],
+        goal_reward: float,
+        pit_reward: float,
+        living_reward: float,
+        error_rate: float,
+        gamma: float,
+    ) -> None:
         self.mini_grid_world = MiniGridWorld(
-            field=field, 
-            goal_reward=goal_reward, 
-            pit_reward=pit_reward, 
-            living_reward=living_reward, 
-            error_rate=error_rate
+            field=field,
+            goal_reward=goal_reward,
+            pit_reward=pit_reward,
+            living_reward=living_reward,
+            error_rate=error_rate,
         )
         self.mini_grid_world_mdp = config.MarkovDecisionProcess(
-            S = self.mini_grid_world.S, 
-            A = self.mini_grid_world.A, 
-            T = self.mini_grid_world.T, 
-            R = self.mini_grid_world.R, 
-            gamma=gamma
+            S=self.mini_grid_world.S,
+            A=self.mini_grid_world.A,
+            T=self.mini_grid_world.T,
+            R=self.mini_grid_world.R,
+            gamma=gamma,
         )
 
         self._field = field
         self._H: int = len(self._field)
         self._W: int = len(self._field[0])
 
-
     def solve(self, max_iter=100):
-        self.V_val = [ [-inf for j in range(self._W)] for i in range(self._H) ]
-        self.pi_val = [ [-inf for j in range(self._W)] for i in range(self._H) ]
+        self.V_val = [[-inf for j in range(self._W)] for i in range(self._H)]
+        self.pi_val = [[-inf for j in range(self._W)] for i in range(self._H)]
         for cx in range(self._H):
             for cy in range(self._W):
                 current_state_num = self.mini_grid_world.coord_to_state_num(cx, cy)
-                if self._field[cx][cy] != '#':
-                    self.V_val[cx][cy] = self.mini_grid_world_mdp.V(current_state_num, max_iter)
-                    self.pi_val[cx][cy] = self.mini_grid_world_mdp.pi(current_state_num, max_iter)
-    
+                if self._field[cx][cy] != "#":
+                    self.V_val[cx][cy] = self.mini_grid_world_mdp.V(
+                        current_state_num, max_iter
+                    )
+                    self.pi_val[cx][cy] = self.mini_grid_world_mdp.pi(
+                        current_state_num, max_iter
+                    )
+
     def show(self, max_iter=100):
         self.solve(max_iter)
         print("[ original field ]")
@@ -50,7 +62,6 @@ class MiniGridWorldValueIterationSolver:
                 print(f"{self._field[cx][cy] * 3:^10}", end=" ")
             print()
         print()
-
 
         print(f"[ V at iteration {max_iter} ]")
         for cx in range(self._H):
@@ -77,15 +88,14 @@ class MiniGridWorldValueIterationSolver:
             print()
 
 
-
 if __name__ == "__main__":
     field = ["...#.", "...#.", "#..+.", "...-."]
     mini_grid_world_value_iteration_solver = MiniGridWorldValueIterationSolver(
-        field=field, 
-        goal_reward=10, 
-        pit_reward=-10, 
-        living_reward=0, 
-        error_rate=0.1, 
-        gamma=0.5
+        field=field,
+        goal_reward=10,
+        pit_reward=-10,
+        living_reward=0,
+        error_rate=0.1,
+        gamma=0.5,
     )
     mini_grid_world_value_iteration_solver.show(max_iter=300)
