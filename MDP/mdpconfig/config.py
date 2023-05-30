@@ -46,7 +46,7 @@ class MarkovDecisionProcess:
 
         return result_value
 
-    def pi(self, s: int, k: int):
+    def pi(self, s: int, k: int) -> MarkovDecisionProcessActions:
         """
         k ステップ目において、状態 s からの行動価値を最大にするような方策を求める
         """
