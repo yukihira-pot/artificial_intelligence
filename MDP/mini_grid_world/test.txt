@@ -1,0 +1,17 @@
+[ original field ]
+   ...        ...        ...        ###        ...     
+   ...        ...        ...        ###        ...     
+   ###        ...        ...        +++        ...     
+   ...        ...        ...        ---        ...     
+
+[ V at iteration 10 ]
+0.8981     0.9302     0.9563     undefined  0.9660     
+0.9207     0.9590     0.9717     undefined  0.9717     
+undefined  0.9660     0.9861     1.0000     0.9753     
+0.9024     0.9455     0.9146     -1.0000    0.8038     
+
+[ Pi at iteration 10 ]
+Actions.R  Actions.R  Actions.D  undefined  Actions.D  
+Actions.R  Actions.R  Actions.D  undefined  Actions.D  
+undefined  Actions.R  Actions.R  GOAL       Actions.L  
+Actions.R  Actions.U  Actions.L  PIT        Actions.R  

@@ -12,24 +12,38 @@ class MarkovDecisionProcessActions(Enum):
 
 
 class MarkovDecisionProcess:
-    def __init__(self, S, A, T, R, gamma, is_const_goal_pit_value, goal_states, pit_states, goal_reward, pit_reward) -> None:
+    def __init__(
+        self,
+        S: set[int],
+        A: set[MarkovDecisionProcessActions],
+        T: Callable[[int, MarkovDecisionProcessActions, int], float],
+        R: Callable[[int, MarkovDecisionProcessActions, int], float],
+        gamma: float,
+        is_const_goal_pit_value: bool,
+        goal_states: set[int],
+        pit_states: set[int],
+        goal_reward: float,
+        pit_reward: float,
+    ) -> None:
         # 状態集合
-        self.S: set[int] = S
+        self.S = S
         # 行動集合
-        self.A: set[MarkovDecisionProcessActions] = A
+        self.A = A
         # 遷移関数
-        self.T: Callable[[int, MarkovDecisionProcessActions, int], float] = T
+        self.T = T
         # 報酬関数
-        self.R: Callable[[int, MarkovDecisionProcessActions, int], float] = R
+        self.R = R
         # 報酬の割引率
-        self.gamma: float = gamma
+        self.gamma = gamma
         # ゴール状態や落とし穴状態で V を R で固定するか
-        self.is_const_goal_pit_value: bool = is_const_goal_pit_value
+        self.is_const_goal_pit_value = is_const_goal_pit_value
         # ゴール状態集合
         self.goal_states = goal_states
+        # ゴール時の報酬
         self.goat_reward = goal_reward
         # 落とし穴状態集合
         self.pit_states = pit_states
+        # 落とし穴時の報酬
         self.pit_reward = pit_reward
 
     @lru_cache
@@ -42,7 +56,7 @@ class MarkovDecisionProcess:
         """
         if k == 0:
             return 0
-        
+
         if self.is_const_goal_pit_value:
             if s in self.goal_states:
                 return self.goat_reward
@@ -51,18 +65,13 @@ class MarkovDecisionProcess:
 
         result_value = -inf
 
-        print("s:", s)
         for a in self.A:
-            print("a:", a)
             result_per_action = 0.0
             for s_sub in self.S:
                 result_per_action += self.T(s, a, s_sub) * (
                     self.R(s, a, s_sub) + self.gamma * self.V(s_sub, k - 1)
                 )
-                print(f"{self.T(s, a, s_sub)} * ( {self.R(s, a, s_sub)} + {self.gamma} * {self.V(s_sub, k - 1)} ) + ")
-            print()
             result_value = max(result_value, result_per_action)
-        print("------------")
 
         return result_value
 

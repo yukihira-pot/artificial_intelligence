@@ -139,8 +139,11 @@ class MiniGridWorld:
         s_coord: int = self._state_num_to_coord[s]
         s_sub_coord_x, s_sub_coord_y = s_coord[0] + a.value[0], s_coord[1] + a.value[1]
 
-        if 0 <= s_sub_coord_x < self._H and 0 <= s_sub_coord_y < self._W \
-            and self._field[s_sub_coord_x][s_sub_coord_y] != '#':
+        if (
+            0 <= s_sub_coord_x < self._H
+            and 0 <= s_sub_coord_y < self._W
+            and self._field[s_sub_coord_x][s_sub_coord_y] != "#"
+        ):
             # フィールド内かつ障害物マスでなければ、移動先の座標を返す
             return self._coord_to_state_num[s_sub_coord_x][s_sub_coord_y]
         else:
@@ -150,7 +153,7 @@ class MiniGridWorld:
     def is_connected(self, s: int, s_sub: int) -> bool:
         """s から s_sub に移動できるかどうかを返す"""
         return s_sub in self._connections[s]
-    
+
     def get_opposite_action(self, a: Actions):
         match a:
             case Actions.L:
@@ -174,23 +177,27 @@ class MiniGridWorld:
         # s から 1 手で s_sub にたどり着けなければ 0
         if not self.is_connected(s, s_sub):
             return 0.0
-        
-        actions = { action for action in self.directions }
+
+        actions = {action for action in self.directions}
         actions.remove(self.get_opposite_action(a))
-        next_s_list_for_all_actions = [ self.get_next_state_num(s, action) for action in actions ]
+        next_s_list_for_all_actions = [
+            self.get_next_state_num(s, action) for action in actions
+        ]
 
         transfer_probability = 0.0
         target_uncheked = True
         for next_s in next_s_list_for_all_actions:
-            if target_uncheked and next_s == s_sub and next_s == self.get_next_state_num(s, a):
+            if (
+                target_uncheked
+                and next_s == s_sub
+                and next_s == self.get_next_state_num(s, a)
+            ):
                 target_uncheked = False
                 transfer_probability += 1.0 - self._error_rate
             elif next_s == s_sub:
                 transfer_probability += self._error_rate / 2
-        
+
         return transfer_probability
-
-
 
     def _R(self, s: int, a: Actions, s_sub: int) -> float:
         """行動 a にしたがって状態 s から s_sub に遷移したときの報酬"""

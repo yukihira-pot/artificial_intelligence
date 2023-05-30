@@ -9,8 +9,9 @@ from typing import *
 
 sys.setrecursionlimit(10000)
 
-from mdpconfig import config
 from mini_grid_world_config import MiniGridWorld
+
+from mdpconfig import config
 
 
 class MiniGridWorldValueIterationSolver:
@@ -36,11 +37,11 @@ class MiniGridWorldValueIterationSolver:
             T=self.mini_grid_world.T,
             R=self.mini_grid_world.R,
             gamma=gamma,
-            is_const_goal_pit_value=True, 
-            goal_states=self.mini_grid_world._goal_state_nums, 
-            pit_states=self.mini_grid_world._pit_state_nums, 
-            goal_reward=self.mini_grid_world.goal_reward, 
-            pit_reward=self.mini_grid_world.pit_reward
+            is_const_goal_pit_value=True,
+            goal_states=self.mini_grid_world._goal_state_nums,
+            pit_states=self.mini_grid_world._pit_state_nums,
+            goal_reward=self.mini_grid_world.goal_reward,
+            pit_reward=self.mini_grid_world.pit_reward,
         )
 
         self._field = field
@@ -96,26 +97,13 @@ class MiniGridWorldValueIterationSolver:
 
 
 if __name__ == "__main__":
-    field = ["...+", ".#.-", "...."]
+    field = ["...#.", "...#.", "#..+.", "...-."]
     mini_grid_world_value_iteration_solver = MiniGridWorldValueIterationSolver(
         field=field,
         goal_reward=1,
         pit_reward=-1,
         living_reward=0,
         error_rate=0.2,
-        gamma=0.9,
+        gamma=1,
     )
     mini_grid_world_value_iteration_solver.show(max_iter=10)
-
-    # mini_g = MiniGridWorld(
-    #     field=field, 
-    #     goal_reward=1, 
-    #     pit_reward=-1,
-    #     living_reward=0, 
-    #     error_rate=0.2, 
-    # )
-
-    # for s in mini_g.S:
-    #     for a in mini_g.A:
-    #         print(f"{s}, {a}, {mini_g.get_next_state_num(s, a)}")
-    #     print()
