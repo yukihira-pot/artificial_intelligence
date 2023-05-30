@@ -52,7 +52,7 @@ class MiniGridWorld:
 
     def set_states_config(
         self,
-    ) -> tuple[list[list[int]], list[tuple[int, int]], set[int], set[int]]:
+    ) -> tuple[set[int], list[list[int]], list[tuple[int, int]], set[int], set[int]]:
         """
         ( 状態集合, 座標 -> 状態番号のリスト, 状態番号 -> 座標のリスト, ゴール状態集合, 落とし穴状態集合 ) を構築
         """
@@ -107,6 +107,8 @@ class MiniGridWorld:
         for cx in range(self._H):
             for cy in range(self._W):
                 current_state_num = self._coord_to_state_num[cx][cy]
+                # 元の状態へも遷移可能とする
+                _connections[current_state_num].add(current_state_num)
                 for direction in self.directions:
                     dx, dy = direction.value
                     nx, ny = cx + dx, cy + dy
@@ -132,16 +134,33 @@ class MiniGridWorld:
     def coord_to_state_num(self, x: int, y: int) -> int:
         return self._coord_to_state_num[x][y]
 
-    def get_next_state_num(self, s: int, a: Actions):
+    def get_next_state_num(self, s: int, a: Actions) -> int:
         """行動 a にしたがって状態 s から遷移した先の状態を返す"""
         s_coord: int = self._state_num_to_coord[s]
         s_sub_coord_x, s_sub_coord_y = s_coord[0] + a.value[0], s_coord[1] + a.value[1]
-        if 0 <= s_sub_coord_x < self._H and 0 <= s_sub_coord_y < self._W:
+
+        if 0 <= s_sub_coord_x < self._H and 0 <= s_sub_coord_y < self._W \
+            and self._field[s_sub_coord_x][s_sub_coord_y] != '#':
+            # フィールド内かつ障害物マスでなければ、移動先の座標を返す
             return self._coord_to_state_num[s_sub_coord_x][s_sub_coord_y]
+        else:
+            # 壁か障害物であればその場に停止
+            return s
 
     def is_connected(self, s: int, s_sub: int) -> bool:
         """s から s_sub に移動できるかどうかを返す"""
         return s_sub in self._connections[s]
+    
+    def get_opposite_action(self, a: Actions):
+        match a:
+            case Actions.L:
+                return Actions.R
+            case Actions.R:
+                return Actions.L
+            case Actions.U:
+                return Actions.D
+            case Actions.D:
+                return Actions.U
 
     def _T(self, s: int, a: Actions, s_sub: int) -> float:
         """行動 a にしたがって状態 s から s_sub に遷移する確率"""
@@ -151,14 +170,27 @@ class MiniGridWorld:
                 return 1.0
             else:
                 return 0.0
+
         # s から 1 手で s_sub にたどり着けなければ 0
         if not self.is_connected(s, s_sub):
             return 0.0
-        # 確率: 1 - エラー率 で正しい状態に遷移
-        elif self.get_next_state_num(s, a) == s_sub:
-            return 1.0 - self._error_rate
-        else:
-            return self._error_rate
+        
+        actions = { action for action in self.directions }
+        actions.remove(self.get_opposite_action(a))
+        next_s_list_for_all_actions = [ self.get_next_state_num(s, action) for action in actions ]
+
+        transfer_probability = 0.0
+        target_uncheked = True
+        for next_s in next_s_list_for_all_actions:
+            if target_uncheked and next_s == s_sub and next_s == self.get_next_state_num(s, a):
+                target_uncheked = False
+                transfer_probability += 1.0 - self._error_rate
+            elif next_s == s_sub:
+                transfer_probability += self._error_rate / 2
+        
+        return transfer_probability
+
+
 
     def _R(self, s: int, a: Actions, s_sub: int) -> float:
         """行動 a にしたがって状態 s から s_sub に遷移したときの報酬"""

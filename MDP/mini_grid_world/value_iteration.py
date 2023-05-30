@@ -7,6 +7,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from typing import *
 
+sys.setrecursionlimit(10000)
+
 from mdpconfig import config
 from mini_grid_world_config import MiniGridWorld
 
@@ -34,6 +36,11 @@ class MiniGridWorldValueIterationSolver:
             T=self.mini_grid_world.T,
             R=self.mini_grid_world.R,
             gamma=gamma,
+            is_const_goal_pit_value=True, 
+            goal_states=self.mini_grid_world._goal_state_nums, 
+            pit_states=self.mini_grid_world._pit_state_nums, 
+            goal_reward=self.mini_grid_world.goal_reward, 
+            pit_reward=self.mini_grid_world.pit_reward
         )
 
         self._field = field
@@ -67,7 +74,7 @@ class MiniGridWorldValueIterationSolver:
         for cx in range(self._H):
             for cy in range(self._W):
                 if self.V_val[cx][cy] != -inf:
-                    print(f"{self.V_val[cx][cy]:<10.3f}", end=" ")
+                    print(f"{self.V_val[cx][cy]:<10.4f}", end=" ")
                 else:
                     print("{:<10}".format("undefined"), end=" ")
             print()
@@ -89,13 +96,26 @@ class MiniGridWorldValueIterationSolver:
 
 
 if __name__ == "__main__":
-    field = ["...#.", "...#.", "#..+.", "...-."]
+    field = ["...+", ".#.-", "...."]
     mini_grid_world_value_iteration_solver = MiniGridWorldValueIterationSolver(
         field=field,
-        goal_reward=10,
-        pit_reward=-10,
+        goal_reward=1,
+        pit_reward=-1,
         living_reward=0,
-        error_rate=0.1,
-        gamma=0.5,
+        error_rate=0.2,
+        gamma=0.9,
     )
-    mini_grid_world_value_iteration_solver.show(max_iter=300)
+    mini_grid_world_value_iteration_solver.show(max_iter=10)
+
+    # mini_g = MiniGridWorld(
+    #     field=field, 
+    #     goal_reward=1, 
+    #     pit_reward=-1,
+    #     living_reward=0, 
+    #     error_rate=0.2, 
+    # )
+
+    # for s in mini_g.S:
+    #     for a in mini_g.A:
+    #         print(f"{s}, {a}, {mini_g.get_next_state_num(s, a)}")
+    #     print()
