@@ -28,7 +28,7 @@ class MiniGridWorld:
         のように、壁を # で、ゴールマスを + で、落とし穴マスを - で表現
         """
         self.directions: set[Actions] = {action for action in Actions}
-        self._field: list[list[str]] = field
+        self._field: list[str] = field
         self.goal_reward: float = goal_reward
         self.pit_reward: float = pit_reward
         self._living_reward: float = living_reward
@@ -127,7 +127,7 @@ class MiniGridWorld:
         return self._S
 
     @property
-    def A(self) -> Actions:
+    def A(self) -> set[Actions]:
         """行動集合"""
         return self.directions
 
@@ -136,7 +136,7 @@ class MiniGridWorld:
 
     def get_next_state_num(self, s: int, a: Actions) -> int:
         """行動 a にしたがって状態 s から遷移した先の状態を返す"""
-        s_coord: int = self._state_num_to_coord[s]
+        s_coord: tuple[int, int] = self._state_num_to_coord[s]
         s_sub_coord_x, s_sub_coord_y = s_coord[0] + a.value[0], s_coord[1] + a.value[1]
 
         if (
